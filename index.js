@@ -16,6 +16,7 @@
     var fileName = index + "-" + path.basename(imgSrc);
     var callback = function(res) {
       console.log("request: " + imgSrc + " return status: " + res.statusCode);
+      var contentLength = parseInt(res.headers['content-length']);
       var fileBuff = [];
       res.on('data', function (chunk) {
         var buffer = new Buffer(chunk);
@@ -23,7 +24,17 @@
       });
       res.on('end', function() {
         console.log("end downloading " + imgSrc);
+        if (isNaN(contentLength)) {
+          console.log(imgSrc + " content length error");
+          return;
+        }
         var totalBuff = Buffer.concat(fileBuff);
+        console.log("totalBuff.length = " + totalBuff.length + " " + "contentLength = " + contentLength);
+        if (totalBuff.length < contentLength) {
+          console.log(imgSrc + " download error, try again");
+          startDownloadTask(imgSrc, dirName, index);
+          return;
+        }
         fs.appendFile(dirName + "/" + fileName, totalBuff, function(err){});
       });
     };
