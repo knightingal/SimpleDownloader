@@ -34,7 +34,10 @@
   var startDownloadTask = function(imgSrc, dirName, index) {
     console.log("start downloading " + imgSrc);
     var req = http.request(imgSrc, getHttpReqCallback(imgSrc, dirName, index));
-    req.on('error', function(e){});
+    req.on('error', function(e){
+      console.log("request " + imgSrc + " error, try again");
+      startDownloadTask(imgSrc, dirName, index);
+    });
     req.end();
   }
 
