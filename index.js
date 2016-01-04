@@ -1,6 +1,8 @@
 (function() {
   "use strict";
   const http = require("http");
+  const fs = require("fs");
+  const path = require("path");
 
   const urlList = [
     "http://content.battlenet.com.cn/wow/media/wallpapers/patch/fall-of-the-lich-king/fall-of-the-lich-king-1920x1080.jpg",
@@ -11,8 +13,17 @@
   ];
 
   function getHttpReqCallback(imgSrc, dirName, index) {
+    var fileName = index + "-" + path.basename(imgSrc);
     var callback = function(res) {
-      
+      var fileBuff = [];
+      res.on('data', function (chunk) {
+        var buffer = new Buffer(chunk);
+        fileBuff.push(buffer);
+      });
+      res.on('end', function() {
+        var totalBuff = Buffer.concat(fileBuff);
+        fs.appendFile(dirName + "/" + fileName, totalBuff, function(err){});
+      });
     };
 
     return callback;
