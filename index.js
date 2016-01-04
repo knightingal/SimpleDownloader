@@ -15,12 +15,14 @@
   function getHttpReqCallback(imgSrc, dirName, index) {
     var fileName = index + "-" + path.basename(imgSrc);
     var callback = function(res) {
+      console.log("request: " + imgSrc + " return status: " + res.statusCode);
       var fileBuff = [];
       res.on('data', function (chunk) {
         var buffer = new Buffer(chunk);
         fileBuff.push(buffer);
       });
       res.on('end', function() {
+        console.log("end downloading " + imgSrc);
         var totalBuff = Buffer.concat(fileBuff);
         fs.appendFile(dirName + "/" + fileName, totalBuff, function(err){});
       });
@@ -30,6 +32,7 @@
   }
 
   var startDownloadTask = function(imgSrc, dirName, index) {
+    console.log("start downloading " + imgSrc);
     var req = http.request(imgSrc, getHttpReqCallback(imgSrc, dirName, index));
     req.on('error', function(e){});
     req.end();
