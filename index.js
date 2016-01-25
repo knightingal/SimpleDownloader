@@ -44,12 +44,19 @@
 
   var startDownloadTask = function(imgSrc, dirName, index) {
     console.log("start downloading " + imgSrc);
-    var req = http.request(imgSrc, getHttpReqCallback(imgSrc, dirName, index));
-    req.on('error', function(e){
-      console.log("request " + imgSrc + " error, try again");
-      startDownloadTask(imgSrc, dirName, index);
+    new Promise(function(resolve, rej) {
+      var req = http.request(imgSrc, function(res) {
+        resolve(res);
+      });
+      req.on('error', function(e){
+        console.log("request " + imgSrc + " error, try again");
+        startDownloadTask(imgSrc, dirName, index);
+      });
+      req.end();
+    }).then(function(res) {
+      getHttpReqCallback(imgSrc, dirName, index)(res);
     });
-    req.end();
+
   }
 
   urlList.forEach(function(item, index, array) {
