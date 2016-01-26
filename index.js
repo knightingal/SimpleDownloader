@@ -42,9 +42,8 @@
     return callback;
   }
 
-  var startDownloadTask = function(imgSrc, dirName, index) {
-    console.log("start downloading " + imgSrc);
-    new Promise(function(resolve, rej) {
+  function startRequest(imgSrc) {
+    return new Promise(function(resolve, rej) {
       var req = http.request(imgSrc, function(res) {
         resolve(res);
       });
@@ -53,7 +52,12 @@
         startDownloadTask(imgSrc, dirName, index);
       });
       req.end();
-    }).then(function(res) {
+    })
+  }
+
+  var startDownloadTask = function(imgSrc, dirName, index) {
+    console.log("start downloading " + imgSrc);
+    startRequest(imgSrc).then(function(res) {
       getHttpReqCallback(imgSrc, dirName, index)(res);
     });
 
