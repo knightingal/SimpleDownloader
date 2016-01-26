@@ -47,6 +47,7 @@
 
 
   var startDownloadTask = function(imgSrc, dirName, index) {
+
     function startRequest(imgSrc) {
       return new Promise(function(resolve, rej) {
         var req = http.request(imgSrc, resolve);
@@ -73,8 +74,7 @@
       });
     }
 
-    console.log("start downloading " + imgSrc);
-    startRequest(imgSrc).then(solveResponse).then(function(data) {
+    function solveResData(data) {
       var contentLength = data.contentLength;
       var fileBuff = data.fileBuff;
       var fileName = index + "-" + path.basename(imgSrc);
@@ -91,7 +91,13 @@
         return;
       }
       fs.appendFile(dirName + "/" + fileName, totalBuff, function(err){});
-    });
+    }
+
+    console.log("start downloading " + imgSrc);
+
+    startRequest(imgSrc)
+      .then(solveResponse)
+      .then(solveResData);
 
   }
 
