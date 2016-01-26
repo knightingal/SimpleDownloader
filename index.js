@@ -42,22 +42,23 @@
     return callback;
   }
 
-  function startRequest(imgSrc) {
-    return new Promise(function(resolve, rej) {
-      var req = http.request(imgSrc, function(res) {
-        resolve(res);
-      });
-      req.on('error', function(e){
-        console.log("request " + imgSrc + " error, try again");
-        startDownloadTask(imgSrc, dirName, index);
-      });
-      req.end();
-    });
-  }
+
+
+
 
   var startDownloadTask = function(imgSrc, dirName, index) {
-    console.log("start downloading " + imgSrc);
-    startRequest(imgSrc).then(function(res) {
+    function startRequest(imgSrc) {
+      return new Promise(function(resolve, rej) {
+        var req = http.request(imgSrc, resolve);
+        req.on('error', function(e){
+          console.log("request " + imgSrc + " error, try again");
+          startDownloadTask(imgSrc, dirName, index);
+        });
+        req.end();
+      });
+    }
+
+    function solveResponse(res) {
       console.log("request: " + imgSrc + " return status: " + res.statusCode);
       var contentLength = parseInt(res.headers['content-length']);
       var fileBuff = [];
@@ -70,7 +71,10 @@
           resolve({"contentLength": contentLength, "fileBuff": fileBuff})
         });
       });
-    }).then(function(data) {
+    }
+
+    console.log("start downloading " + imgSrc);
+    startRequest(imgSrc).then(solveResponse).then(function(data) {
       var contentLength = data.contentLength;
       var fileBuff = data.fileBuff;
       var fileName = index + "-" + path.basename(imgSrc);
